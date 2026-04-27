@@ -1,0 +1,12 @@
+{
+  "name": "omnistock-flow",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:server": "npm run dev --prefix server",
+    "dev:client": "npm run dev --prefix client",
+    "seed:admin": "npm run seed:admin --prefix server",
+    "seed:supplier": "npm run seed:supplier --prefix server",
+    "seed:defaults": "npm run seed:defaults --prefix server"
+  }
+}

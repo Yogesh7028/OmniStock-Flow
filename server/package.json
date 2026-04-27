@@ -1,0 +1,33 @@
+{
+  "name": "omnistock-flow-server",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "node src/server.js",
+    "dev:watch": "nodemon src/server.js",
+    "start": "node src/server.js",
+    "seed:admin": "node src/seed/seedAdmin.js",
+    "seed:supplier": "node src/seed/seedDefaultSupplier.js",
+    "seed:defaults": "npm run seed:admin && npm run seed:supplier"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cloudinary": "^2.5.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.4.1",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^8.7.3",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.15",
+    "pdfkit": "^0.15.0",
+    "razorpay": "^2.9.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
+  }
+}
