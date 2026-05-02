@@ -13,7 +13,7 @@ const seedAdmin = async () => {
 
   await User.create({
     name: "System Admin",
-    email: "admin@omnistock.com",
+    email: "",
     phone: "9999999999",
     password: "Admin@123",
     role: "ADMIN",

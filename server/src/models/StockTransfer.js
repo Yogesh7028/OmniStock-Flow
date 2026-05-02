@@ -4,11 +4,11 @@ const stockTransferSchema = new mongoose.Schema(
   {
     type: {
       type: String,
-      enum: ["WAREHOUSE_TO_STORE", "WAREHOUSE_TO_WAREHOUSE"],
+      enum: ["GENERAL_TO_WAREHOUSE", "WAREHOUSE_TO_STORE", "WAREHOUSE_TO_WAREHOUSE"],
       required: true,
     },
     product: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true },
-    sourceWarehouse: { type: mongoose.Schema.Types.ObjectId, ref: "Warehouse", required: true },
+    sourceWarehouse: { type: mongoose.Schema.Types.ObjectId, ref: "Warehouse", default: null },
     destinationWarehouse: { type: mongoose.Schema.Types.ObjectId, ref: "Warehouse", default: null },
     destinationStore: { type: mongoose.Schema.Types.ObjectId, ref: "Store", default: null },
     quantity: { type: Number, required: true, min: 1 },

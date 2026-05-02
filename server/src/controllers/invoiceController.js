@@ -41,6 +41,9 @@ const downloadInvoice = asyncHandler(async (req, res) => {
   const buffer = await generateInvoicePDF(invoice);
   res.setHeader("Content-Type", "application/pdf");
   res.setHeader("Content-Disposition", `attachment; filename=${invoice.invoiceNumber}.pdf`);
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, private");
+  res.setHeader("Pragma", "no-cache");
+  res.setHeader("Expires", "0");
   res.send(buffer);
 });
 

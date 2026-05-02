@@ -40,6 +40,10 @@ const createProduct = asyncHandler(async (req, res) => {
     ...req.body,
     createdBy: req.user._id,
   };
+  if (payload.warehouseStock && !payload.generalStock) {
+    payload.generalStock = payload.warehouseStock;
+    payload.warehouseStock = 0;
+  }
   if (typeof payload.features === "string") {
     payload.features = payload.features
       .split(",")
@@ -70,7 +74,11 @@ const updateProduct = asyncHandler(async (req, res) => {
 });
 
 const deleteProduct = asyncHandler(async (req, res) => {
-  await Product.findByIdAndDelete(req.params.id);
+  const product = await Product.findByIdAndDelete(req.params.id);
+  if (!product) {
+    res.status(404);
+    throw new Error("Product not found");
+  }
   successResponse(res, "Product deleted");
 });
 

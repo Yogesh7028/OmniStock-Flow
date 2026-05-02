@@ -4,7 +4,9 @@ const asyncHandler = require("../utils/asyncHandler");
 const { successResponse } = require("../utils/apiResponse");
 
 const getWarehouses = asyncHandler(async (req, res) => {
-  const warehouses = await Warehouse.find().populate("manager", "name email");
+  const warehouses = await Warehouse.find()
+    .populate("manager", "name email")
+    .populate("stock.product", "name category brand lowStockThreshold");
   successResponse(res, "Warehouses fetched", warehouses);
 });
 

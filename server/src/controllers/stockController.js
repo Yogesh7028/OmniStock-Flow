@@ -12,6 +12,7 @@ const getStockOverview = asyncHandler(async (req, res) => {
     productId: product._id,
     productName: product.name,
     sku: product.sku,
+    generalStock: product.generalStock,
     warehouseStock: product.warehouseStock,
     storeStock: product.storeStock,
     lowStockThreshold: product.lowStockThreshold,

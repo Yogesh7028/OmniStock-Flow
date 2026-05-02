@@ -9,6 +9,7 @@ const productSchema = new mongoose.Schema(
     brand: { type: String, default: "", trim: true },
     features: [{ type: String, trim: true }],
     price: { type: Number, required: true, min: 0 },
+    generalStock: { type: Number, default: 0 },
     warehouseStock: { type: Number, default: 0 },
     storeStock: { type: Number, default: 0 },
     lowStockThreshold: { type: Number, default: 10 },

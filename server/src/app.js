@@ -21,9 +21,37 @@ const notificationRoutes = require("./routes/notificationRoutes");
 const reportRoutes = require("./routes/reportRoutes");
 const cartRoutes = require("./routes/cartRoutes");
 const supportTicketRoutes = require("./routes/supportTicketRoutes");
+const settingsRoutes = require("./routes/settingsRoutes");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 
 const app = express();
+
+const allowedOrigins = new Set(
+  [
+    process.env.CLIENT_URL,
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://[::1]:5173",
+  ].filter(Boolean)
+);
+
+const isAllowedOrigin = (origin) => {
+  if (!origin || allowedOrigins.has(origin)) return true;
+
+  try {
+    const { hostname, protocol } = new URL(origin);
+    const isDevProtocol = protocol === "http:";
+    const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
+    const isPrivateNetwork =
+      hostname.startsWith("192.168.") ||
+      hostname.startsWith("10.") ||
+      /^172\.(1[6-9]|2\d|3[0-1])\./.test(hostname);
+
+    return isDevProtocol && (isLocalhost || isPrivateNetwork);
+  } catch {
+    return false;
+  }
+};
 
 app.use(
   helmet({
@@ -32,7 +60,14 @@ app.use(
 );
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin(origin, callback) {
+      if (isAllowedOrigin(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error(`CORS blocked origin: ${origin}`));
+    },
     credentials: true,
   })
 );
@@ -69,6 +104,7 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/support-tickets", supportTicketRoutes);
+app.use("/api/settings", settingsRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

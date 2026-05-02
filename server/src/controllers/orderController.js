@@ -11,6 +11,20 @@ const Store = require("../models/Store");
 const { generateInvoiceNumber } = require("../services/invoiceService");
 const { notifyLowStockIfNeeded } = require("./stockController");
 
+const findWarehouseStockItem = (warehouse, productId) =>
+  warehouse.stock.find((entry) => String(entry.product) === String(productId));
+
+const updateWarehouseStockBucket = (warehouse, productId, quantityDiff) => {
+  const stockItem = findWarehouseStockItem(warehouse, productId);
+  if (stockItem) {
+    stockItem.quantity += quantityDiff;
+    return stockItem;
+  }
+
+  warehouse.stock.push({ product: productId, quantity: quantityDiff });
+  return warehouse.stock[warehouse.stock.length - 1];
+};
+
 const getOrders = asyncHandler(async (req, res) => {
   const filter = {};
   if (req.user.role === "STORE_MANAGER") filter.storeManager = req.user._id;
@@ -158,9 +172,11 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
     throw new Error("You can only update your assigned orders");
   }
 
-  order.status = req.body.status;
+  const nextStatus = req.body.status;
 
-  if (order.status === "Delivered") {
+  order.status = nextStatus;
+
+  if (nextStatus === "Delivered") {
     await deductDeliveredOrderStock(order);
   }
 
@@ -200,13 +216,24 @@ const receiveSupplierDelivery = asyncHandler(async (req, res) => {
     throw new Error("Only shipped, dispatched, or delivered orders can be received");
   }
 
-  await Promise.all(
-    order.items.map((item) =>
+  const warehouse = order.warehouse ? await Warehouse.findById(order.warehouse) : null;
+  if (!warehouse) {
+    res.status(400);
+    throw new Error("Assign a warehouse before receiving supplier delivery");
+  }
+
+  for (const item of order.items) {
+    updateWarehouseStockBucket(warehouse, item.product, item.quantity);
+  }
+
+  await Promise.all([
+    warehouse.save(),
+    ...order.items.map((item) =>
       Product.findByIdAndUpdate(item.product, {
         $inc: { warehouseStock: item.quantity },
       })
-    )
-  );
+    ),
+  ]);
 
   order.warehouseReceived = true;
   order.receivedAt = new Date();
@@ -270,23 +297,19 @@ const deductDeliveredOrderStock = async (order) => {
   }
 
   for (const item of order.items) {
-    const stockItem = warehouse.stock.find(
-      (entry) => String(entry.product) === String(item.product)
-    );
+    const stockItem = findWarehouseStockItem(warehouse, item.product);
     if (!stockItem || stockItem.quantity < item.quantity) {
       throw new Error(`Insufficient warehouse stock for ${item.productName}`);
     }
   }
 
   for (const item of order.items) {
-    const stockItem = warehouse.stock.find(
-      (entry) => String(entry.product) === String(item.product)
-    );
+    const stockItem = findWarehouseStockItem(warehouse, item.product);
     stockItem.quantity -= item.quantity;
     const product = await Product.findById(item.product);
     if (product) {
       product.warehouseStock = Math.max(0, Number(product.warehouseStock || 0) - item.quantity);
-      product.storeStock = Math.max(0, Number(product.storeStock || 0) - item.quantity);
+      product.storeStock = Number(product.storeStock || 0) + item.quantity;
       await product.save();
       await notifyLowStockIfNeeded({ product, warehouse, quantity: stockItem.quantity });
     }

@@ -3,6 +3,10 @@ const sanitizeUser = (user) => {
   const source = typeof user.toObject === "function" ? user.toObject() : { ...user };
   delete source.password;
   delete source.refreshToken;
+  delete source.otp;
+  delete source.otpExpiresAt;
+  delete source.resetPasswordOtp;
+  delete source.resetPasswordOtpExpiresAt;
   return source;
 };
 

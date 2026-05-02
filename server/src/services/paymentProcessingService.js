@@ -8,6 +8,8 @@ const hasRealRazorpayKeys = () =>
   Boolean(
     process.env.RAZORPAY_KEY_ID &&
       process.env.RAZORPAY_KEY_SECRET &&
+      String(process.env.RAZORPAY_KEY_ID).trim() &&
+      String(process.env.RAZORPAY_KEY_SECRET).trim() &&
       !String(process.env.RAZORPAY_KEY_ID).includes("placeholder") &&
       !String(process.env.RAZORPAY_KEY_SECRET).includes("placeholder")
   );
@@ -37,22 +39,15 @@ const getOrCreatePaymentOrder = async ({ order, userId }) => {
     }
   }
 
-  let razorpayOrder = null;
-  try {
-    razorpayOrder = await razorpay.orders.create({
-      amount: Math.round(order.totalAmount * 100),
-      currency: "INR",
-      receipt: `order_${order._id}`,
-    });
-  } catch (error) {
-    razorpayOrder = {
-      id: `mock_order_${Date.now()}`,
-      amount: Math.round(order.totalAmount * 100),
-      currency: "INR",
-      receipt: `order_${order._id}`,
-      mock: true,
-    };
+  if (!hasRealRazorpayKeys()) {
+    throw new Error("Razorpay keys are not configured on the server");
   }
+
+  const razorpayOrder = await razorpay.orders.create({
+    amount: Math.round(order.totalAmount * 100),
+    currency: "INR",
+    receipt: `order_${order._id}`,
+  });
 
   if (existingCreatedPayment) {
     existingCreatedPayment.razorpayOrderId = razorpayOrder.id;
@@ -74,12 +69,12 @@ const getOrCreatePaymentOrder = async ({ order, userId }) => {
 };
 
 const verifyRazorpaySignature = ({ razorpayOrderId, razorpayPaymentId, razorpaySignature }) => {
-  const hasLiveRazorpayPayload = razorpayPaymentId && razorpaySignature;
   const hasRealSecret =
     process.env.RAZORPAY_KEY_SECRET &&
+    String(process.env.RAZORPAY_KEY_SECRET).trim() &&
     !String(process.env.RAZORPAY_KEY_SECRET).includes("placeholder");
 
-  if (!hasLiveRazorpayPayload || !hasRealSecret) return true;
+  if (!hasRealSecret || !razorpayPaymentId || !razorpaySignature) return false;
 
   const generatedSignature = crypto
     .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
@@ -97,8 +92,8 @@ const capturePaymentAndGenerateInvoice = async ({
   order,
 }) => {
   payment.razorpayOrderId = razorpayOrderId || payment.razorpayOrderId;
-  payment.razorpayPaymentId = razorpayPaymentId || `mock_payment_${Date.now()}`;
-  payment.razorpaySignature = razorpaySignature || "mock_signature";
+  payment.razorpayPaymentId = razorpayPaymentId;
+  payment.razorpaySignature = razorpaySignature;
   payment.status = "captured";
   await payment.save();
 

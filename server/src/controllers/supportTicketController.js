@@ -15,6 +15,11 @@ const getTickets = asyncHandler(async (req, res) => {
 });
 
 const createTicket = asyncHandler(async (req, res) => {
+  if (req.user.role === "ADMIN") {
+    res.status(403);
+    throw new Error("Admins resolve support tickets and cannot create support tickets");
+  }
+
   const ticket = await SupportTicket.create({
     createdBy: req.user._id,
     subject: req.body.subject,
@@ -44,22 +49,33 @@ const updateTicket = asyncHandler(async (req, res) => {
     throw new Error("Support ticket not found");
   }
 
-  if (req.user.role !== "ADMIN" && String(ticket.createdBy) !== String(req.user._id)) {
+  const isAdmin = req.user.role === "ADMIN";
+  const isOwner = String(ticket.createdBy) === String(req.user._id);
+
+  if (!isAdmin && !isOwner) {
     res.status(403);
     throw new Error("You can only update your own support tickets");
   }
 
-  const allowed = ["status", "priority", "assignedTo"];
+  const allowed = isAdmin ? ["status", "priority", "assignedTo"] : [];
   allowed.forEach((field) => {
     if (req.body[field] !== undefined) ticket[field] = req.body[field];
   });
 
   if (req.body.response) {
     ticket.responses.push({ user: req.user._id, message: req.body.response });
+    if (isAdmin && !ticket.assignedTo) ticket.assignedTo = req.user._id;
+    if (isAdmin && ticket.status === "OPEN") ticket.status = "IN_PROGRESS";
   }
 
   await ticket.save();
-  successResponse(res, "Support ticket updated", ticket);
+
+  const populatedTicket = await SupportTicket.findById(ticket._id)
+    .populate("createdBy", "name email role")
+    .populate("assignedTo", "name email role")
+    .populate("responses.user", "name email role");
+
+  successResponse(res, "Support ticket updated", populatedTicket);
 });
 
 module.exports = { getTickets, createTicket, updateTicket };

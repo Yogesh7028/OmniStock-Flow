@@ -9,6 +9,7 @@ const updateWarehouseStockBucket = (warehouse, productId, quantityDiff) => {
   const stockItem = warehouse.stock.find((item) => String(item.product) === String(productId));
   if (stockItem) {
     stockItem.quantity += quantityDiff;
+    if (stockItem.quantity < 0) stockItem.quantity = 0;
   } else {
     warehouse.stock.push({ product: productId, quantity: quantityDiff });
   }
@@ -37,6 +38,10 @@ const transferWarehouseToStore = asyncHandler(async (req, res) => {
   }
 
   const transferQuantity = Number(quantity);
+  if (transferQuantity < 1) {
+    res.status(400);
+    throw new Error("Transfer quantity must be at least 1");
+  }
   const sourceItem = getSourceWarehouseStock(warehouse, productId, product.warehouseStock);
   if (!sourceItem || sourceItem.quantity < transferQuantity || product.warehouseStock < transferQuantity) {
     res.status(400);
@@ -61,8 +66,47 @@ const transferWarehouseToStore = asyncHandler(async (req, res) => {
   successResponse(res, "Stock transferred to store", transfer, 201);
 });
 
+const transferGeneralToWarehouse = asyncHandler(async (req, res) => {
+  const { productId, destinationWarehouseId, quantity } = req.body;
+  const [product, warehouse] = await Promise.all([
+    Product.findById(productId),
+    Warehouse.findById(destinationWarehouseId),
+  ]);
+
+  if (!product || !warehouse) {
+    res.status(404);
+    throw new Error("Product or warehouse not found");
+  }
+
+  const transferQuantity = Number(quantity);
+  if (transferQuantity < 1 || Number(product.generalStock || 0) < transferQuantity) {
+    res.status(400);
+    throw new Error("Insufficient general stock");
+  }
+
+  product.generalStock -= transferQuantity;
+  product.warehouseStock += transferQuantity;
+  updateWarehouseStockBucket(warehouse, productId, transferQuantity);
+
+  await Promise.all([product.save(), warehouse.save()]);
+
+  const transfer = await StockTransfer.create({
+    type: "GENERAL_TO_WAREHOUSE",
+    product: productId,
+    destinationWarehouse: destinationWarehouseId,
+    quantity: transferQuantity,
+    transferredBy: req.user._id,
+  });
+
+  successResponse(res, "Stock transferred to warehouse", transfer, 201);
+});
+
 const transferWarehouseToWarehouse = asyncHandler(async (req, res) => {
   const { productId, sourceWarehouseId, destinationWarehouseId, quantity } = req.body;
+  if (String(sourceWarehouseId) === String(destinationWarehouseId)) {
+    res.status(400);
+    throw new Error("Source and destination warehouses must be different");
+  }
   const [product, source, destination] = await Promise.all([
     Product.findById(productId),
     Warehouse.findById(sourceWarehouseId),
@@ -75,6 +119,10 @@ const transferWarehouseToWarehouse = asyncHandler(async (req, res) => {
   }
 
   const transferQuantity = Number(quantity);
+  if (transferQuantity < 1) {
+    res.status(400);
+    throw new Error("Transfer quantity must be at least 1");
+  }
   const sourceItem = getSourceWarehouseStock(source, productId, product.warehouseStock);
   if (!sourceItem || sourceItem.quantity < transferQuantity) {
     res.status(400);
@@ -109,6 +157,7 @@ const getTransferHistory = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
+  transferGeneralToWarehouse,
   transferWarehouseToStore,
   transferWarehouseToWarehouse,
   getTransferHistory,
