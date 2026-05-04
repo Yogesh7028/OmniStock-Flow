@@ -8,6 +8,7 @@ const {
   getOrCreatePaymentOrder,
   verifyRazorpaySignature,
   capturePaymentAndGenerateInvoice,
+  hasRealRazorpayKeys,
 } = require("../services/paymentProcessingService");
 const { User } = require("../models/User");
 
@@ -40,6 +41,7 @@ const createRazorpayOrder = asyncHandler(async (req, res) => {
     {
       razorpayOrder: paymentOrder.razorpayOrder,
       payment: paymentOrder.payment,
+      razorpayKeyId: hasRealRazorpayKeys() ? process.env.RAZORPAY_KEY_ID : "",
     }
   );
 });

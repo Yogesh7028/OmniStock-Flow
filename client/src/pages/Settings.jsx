@@ -1,4 +1,19 @@
 import { useEffect, useMemo, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  Bell,
+  Building2,
+  CreditCard,
+  Database,
+  FileText,
+  Lock,
+  Palette,
+  PlugZap,
+  ShieldCheck,
+  SlidersHorizontal,
+  User,
+  Users,
+} from "lucide-react";
 import toast from "react-hot-toast";
 import Button from "../components/common/Button";
 import Input from "../components/common/Input";
@@ -8,17 +23,17 @@ import settingsService from "../services/settingsService";
 import { useAuth } from "../context/AuthContext";
 
 const sectionMeta = {
-  account: { label: "Account", description: "Profile, password, and OTP preferences." },
-  notifications: { label: "Notifications", description: "Email, SMS, and operational alert preferences." },
-  appearance: { label: "Appearance", description: "Theme and display preferences." },
-  organization: { label: "Organization", description: "Company identity, GST, and logo settings." },
-  rolePermissions: { label: "Roles", description: "Role-based permission groups." },
-  inventory: { label: "Inventory", description: "Stock limits and alert behavior." },
-  payment: { label: "Payments", description: "Razorpay and accepted payment methods." },
-  invoice: { label: "Invoices", description: "GST, invoice prefix, logo, and footer notes." },
-  security: { label: "Security", description: "Session timeout and login activity settings." },
-  integration: { label: "Integrations", description: "SMTP, Cloudinary, and Razorpay integration references." },
-  data: { label: "Data", description: "CSV export and import preferences." },
+  account: { label: "Account", description: "Profile, password, and OTP preferences.", icon: User },
+  notifications: { label: "Notifications", description: "Email, SMS, and operational alert preferences.", icon: Bell },
+  appearance: { label: "Appearance", description: "Theme and display preferences.", icon: Palette },
+  organization: { label: "Organization", description: "Company identity, GST, and logo settings.", icon: Building2 },
+  rolePermissions: { label: "Roles", description: "Role-based permission groups.", icon: Users },
+  inventory: { label: "Inventory", description: "Stock limits and alert behavior.", icon: SlidersHorizontal },
+  payment: { label: "Payments", description: "Razorpay and accepted payment methods.", icon: CreditCard },
+  invoice: { label: "Invoices", description: "GST, invoice prefix, logo, and footer notes.", icon: FileText },
+  security: { label: "Security", description: "Session timeout and login activity settings.", icon: ShieldCheck },
+  integration: { label: "Integrations", description: "SMTP, Cloudinary, and Razorpay integration references.", icon: PlugZap },
+  data: { label: "Data", description: "CSV export and import preferences.", icon: Database },
 };
 
 const permissionOptions = [
@@ -44,22 +59,37 @@ const roleLabels = {
 };
 
 const BooleanField = ({ label, checked, onChange }) => (
-  <label className="flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white/80 px-4 py-3">
+  <motion.label
+    whileHover={{ y: -2 }}
+    className="flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white/85 px-4 py-3 shadow-sm"
+  >
     <span className="text-sm font-medium text-slate-700">{label}</span>
     <input
       type="checkbox"
-      className="h-5 w-5 accent-teal-700"
+      className="sr-only"
       checked={Boolean(checked)}
       onChange={(event) => onChange(event.target.checked)}
     />
-  </label>
+    <span
+      className={`relative h-7 w-12 rounded-full transition ${
+        checked ? "bg-teal-700" : "bg-slate-200"
+      }`}
+    >
+      <motion.span
+        layout
+        className="absolute top-1 h-5 w-5 rounded-full bg-white shadow"
+        animate={{ x: checked ? 24 : 4 }}
+        transition={{ type: "spring", stiffness: 420, damping: 28 }}
+      />
+    </span>
+  </motion.label>
 );
 
 const SelectField = ({ label, value, onChange, options }) => (
   <label className="block space-y-2">
     <span className="text-sm font-medium text-slate-600">{label}</span>
     <select
-      className="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 text-sm outline-none transition focus:border-teal-600"
+      className="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 text-sm outline-none transition hover:border-slate-300 focus:border-teal-600 focus:bg-white focus:shadow-[0_0_0_4px_rgba(13,148,136,0.12)]"
       value={value || ""}
       onChange={(event) => onChange(event.target.value)}
     >
@@ -78,6 +108,8 @@ function Settings() {
   const [allowedSections, setAllowedSections] = useState([]);
   const [activeSection, setActiveSection] = useState("account");
   const [accountForm, setAccountForm] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const [saving, setSaving] = useState(false);
 
   const activeMeta = sectionMeta[activeSection] || sectionMeta.account;
@@ -85,11 +117,14 @@ function Settings() {
     () => allowedSections.filter((section) => sectionMeta[section]),
     [allowedSections]
   );
+  const ActiveIcon = activeMeta.icon || Lock;
 
   useEffect(() => {
     const loadSettings = async () => {
+      setLoading(true);
+      setLoadError("");
       const response = await settingsService.getAll();
-      const data = response.data.data;
+      const data = response.data?.data || {};
       setSections(data.sections || {});
       setAllowedSections(data.allowedSections || []);
       setActiveSection((current) => (data.allowedSections?.includes(current) ? current : data.allowedSections?.[0] || "account"));
@@ -104,7 +139,13 @@ function Settings() {
       });
     };
 
-    loadSettings().catch((error) => toast.error(error.message || "Unable to load settings"));
+    loadSettings()
+      .catch((error) => {
+        const message = error.message || "Unable to load settings";
+        setLoadError(message);
+        toast.error(message);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const updateSectionState = (section, key, value) => {
@@ -121,12 +162,22 @@ function Settings() {
     setSaving(true);
     try {
       if (section === "account") {
-        await settingsService.updateAccount(accountForm);
+        const response = await settingsService.updateAccount(accountForm);
+        const data = response.data?.data || {};
+        setSections((prev) => ({ ...prev, account: data.settings || prev.account || {} }));
+        setAccountForm((prev) => ({
+          ...prev,
+          name: data.user?.name ?? prev.name,
+          phone: data.user?.phone ?? prev.phone,
+          storeName: data.user?.storeName ?? prev.storeName,
+          otpEnabled: data.settings?.otpEnabled ?? prev.otpEnabled,
+          currentPassword: "",
+          newPassword: "",
+        }));
         await refreshMe();
-        setAccountForm((prev) => ({ ...prev, currentPassword: "", newPassword: "" }));
       } else {
         const response = await settingsService.updateSection(section, sections[section] || {});
-        setSections((prev) => ({ ...prev, [section]: response.data.data.settings }));
+        setSections((prev) => ({ ...prev, [section]: response.data?.data?.settings || prev[section] || {} }));
       }
       toast.success("Settings saved");
     } catch (error) {
@@ -298,33 +349,110 @@ function Settings() {
 
   return (
     <PageWrapper className="space-y-6">
-      <SectionHeader eyebrow="Settings" title="Settings" description="Manage personal preferences and role-based OmniStock Flow configuration." />
+      <motion.div
+        initial={{ opacity: 0, y: 18 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        className="relative overflow-hidden rounded-3xl border border-white/70 bg-slate-950 p-6 text-white shadow-soft"
+      >
+        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-teal-400 via-amber-300 to-emerald-400" />
+        <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-amber-200">Settings</p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">Control center</h2>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
+              Tune account preferences, permissions, security, payments, and operational defaults from one focused workspace.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            <div className="rounded-2xl border border-white/10 bg-white/10 p-3">
+              <p className="text-2xl font-semibold">{visibleSections.length}</p>
+              <p className="text-xs text-slate-300">Sections</p>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/10 p-3">
+              <p className="text-2xl font-semibold">{user?.role ? "On" : "--"}</p>
+              <p className="text-xs text-slate-300">Role access</p>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/10 p-3">
+              <p className="text-2xl font-semibold">{saving ? "Saving" : "Ready"}</p>
+              <p className="text-xs text-slate-300">Status</p>
+            </div>
+          </div>
+        </div>
+      </motion.div>
       <div className="grid gap-6 xl:grid-cols-[260px_1fr]">
         <aside className="glass-panel rounded-3xl p-3">
           <nav className="space-y-2">
-            {visibleSections.map((section) => (
-              <button
+            {visibleSections.map((section, index) => {
+              const meta = sectionMeta[section];
+              const Icon = meta.icon;
+              return (
+              <motion.button
                 key={section}
                 type="button"
+                initial={{ opacity: 0, x: -12 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.035, duration: 0.28 }}
+                whileHover={{ x: 4 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => setActiveSection(section)}
-                className={`w-full rounded-2xl px-4 py-3 text-left text-sm font-semibold transition ${
-                  activeSection === section ? "bg-teal-700 text-white" : "text-slate-600 hover:bg-white/80"
+                className={`flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-sm font-semibold transition ${
+                  activeSection === section ? "bg-slate-950 text-white shadow-soft" : "text-slate-600 hover:bg-white/80 hover:text-slate-900"
                 }`}
               >
-                {sectionMeta[section].label}
-              </button>
-            ))}
+                <span
+                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
+                    activeSection === section ? "bg-white/15 text-amber-300" : "bg-teal-50 text-teal-700"
+                  }`}
+                >
+                  <Icon size={18} />
+                </span>
+                <span>{meta.label}</span>
+              </motion.button>
+            )})}
           </nav>
         </aside>
 
-        <section className="glass-panel rounded-3xl p-6">
+        <section className="glass-panel min-h-[32rem] rounded-3xl p-6">
           <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-            <SectionHeader eyebrow={activeMeta.label} title={activeMeta.label} description={activeMeta.description} />
-            <Button type="button" onClick={() => saveSection(activeSection)} disabled={saving}>
+            <div className="flex items-start gap-4">
+              <motion.div
+                key={activeSection}
+                initial={{ scale: 0.85, rotate: -8 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-700 to-emerald-600 text-white shadow-soft"
+              >
+                <ActiveIcon size={22} />
+              </motion.div>
+              <SectionHeader eyebrow={activeMeta.label} title={activeMeta.label} description={activeMeta.description} />
+            </div>
+            <Button type="button" onClick={() => saveSection(activeSection)} disabled={saving || loading || Boolean(loadError)}>
               {saving ? "Saving..." : "Save Settings"}
             </Button>
           </div>
-          {renderSection()}
+          {loading && <div className="text-sm text-slate-600">Loading settings...</div>}
+          {!loading && loadError && (
+            <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {loadError}
+            </div>
+          )}
+          {!loading && !loadError && visibleSections.length === 0 && (
+            <div className="text-sm text-slate-600">No settings sections are available for this account.</div>
+          )}
+          <AnimatePresence mode="wait">
+            {!loading && !loadError && visibleSections.length > 0 && (
+              <motion.div
+                key={activeSection}
+                initial={{ opacity: 0, y: 14, scale: 0.99 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.99 }}
+                transition={{ duration: 0.24, ease: "easeOut" }}
+              >
+                {renderSection()}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </section>
       </div>
     </PageWrapper>

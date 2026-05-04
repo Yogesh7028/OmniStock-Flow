@@ -11,6 +11,17 @@ const configureMongoDns = (mongoUri) => {
   );
 };
 
+const connectWithTimeout = (mongoUri, options) => {
+  const timeoutMs = Number(process.env.MONGO_CONNECT_TIMEOUT_MS || 20000);
+
+  return Promise.race([
+    mongoose.connect(mongoUri, options),
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("MongoDB connection timed out")), timeoutMs)
+    ),
+  ]);
+};
+
 const verifyMongoSrvDns = async (mongoUri) => {
   if (!mongoUri.startsWith("mongodb+srv://")) return;
 
@@ -34,7 +45,7 @@ const connectDB = async () => {
 
   try {
     await verifyMongoSrvDns(mongoUri);
-    const conn = await mongoose.connect(mongoUri, {
+    const conn = await connectWithTimeout(mongoUri, {
       serverSelectionTimeoutMS: Number(process.env.MONGO_SERVER_SELECTION_TIMEOUT_MS || 10000),
     });
     console.log(`MongoDB connected: ${conn.connection.host}`);
@@ -45,6 +56,12 @@ const connectDB = async () => {
     ) {
       throw new Error(
         "MongoDB Atlas SRV DNS lookup failed. Check your internet/DNS settings, Atlas network access IP allowlist, or use Atlas' standard mongodb:// connection string."
+      );
+    }
+
+    if (mongoUri.startsWith("mongodb+srv://") && error.message === "MongoDB connection timed out") {
+      throw new Error(
+        "MongoDB Atlas connection timed out. Your DNS/network cannot currently resolve Atlas from this machine; deploy on Render/Vercel or use Atlas' standard mongodb:// connection string."
       );
     }
 

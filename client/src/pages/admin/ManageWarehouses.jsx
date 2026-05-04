@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import warehouseService from "../../services/warehouseService";
+import userService from "../../services/userService";
 import SectionHeader from "../../components/common/SectionHeader";
 import Table from "../../components/common/Table";
 import Button from "../../components/common/Button";
@@ -9,6 +10,7 @@ import { useAuth } from "../../context/AuthContext";
 function ManageWarehouses() {
   const { user } = useAuth();
   const [items, setItems] = useState([]);
+  const [warehouseManagers, setWarehouseManagers] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingWarehouse, setEditingWarehouse] = useState(null);
   const isAdmin = user?.role === "ADMIN";
@@ -16,9 +18,18 @@ function ManageWarehouses() {
   const loadWarehouses = () =>
     warehouseService.getAll().then((response) => setItems(response.data.data));
 
+  const loadWarehouseManagers = () =>
+    userService.getAll().then((response) => {
+      const managers = response.data.data.filter((user) => user.role === "WAREHOUSE_MANAGER");
+      setWarehouseManagers(managers);
+    });
+
   useEffect(() => {
     loadWarehouses();
-  }, []);
+    if (isAdmin) {
+      loadWarehouseManagers();
+    }
+  }, [isAdmin]);
 
   const submitHandler = async (payload) => {
     if (editingWarehouse) {
@@ -136,6 +147,7 @@ function ManageWarehouses() {
         }}
         onSubmit={submitHandler}
         initialValues={editingWarehouse}
+        warehouseManagers={warehouseManagers}
       />
     </div>
   );

@@ -5,7 +5,7 @@ import Button from "../../components/common/Button";
 
 const initialState = { name: "", code: "", location: "", manager: "" };
 
-function StoreFormModal({ open, onClose, onSubmit, initialValues }) {
+function StoreFormModal({ open, onClose, onSubmit, initialValues, storeOwners = [] }) {
   const [form, setForm] = useState(initialState);
 
   useEffect(() => {
@@ -33,7 +33,21 @@ function StoreFormModal({ open, onClose, onSubmit, initialValues }) {
         <Input label="Store Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
         <Input label="Code" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} required />
         <Input label="Location" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} required />
-        <Input label="Manager ID" value={form.manager} onChange={(e) => setForm({ ...form, manager: e.target.value })} />
+        <label className="block space-y-2">
+          <span className="text-sm font-medium text-slate-600">Store Owner</span>
+          <select
+            className="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 text-sm"
+            value={form.manager}
+            onChange={(e) => setForm({ ...form, manager: e.target.value })}
+          >
+            <option value="">Unassigned</option>
+            {storeOwners.map((owner) => (
+              <option key={owner._id} value={owner._id}>
+                {owner.name || owner.email} {owner.email ? `(${owner.email})` : ""}
+              </option>
+            ))}
+          </select>
+        </label>
         <div className="flex gap-3">
           <Button type="submit">{initialValues ? "Save changes" : "Create store"}</Button>
           <Button type="button" variant="secondary" onClick={onClose}>

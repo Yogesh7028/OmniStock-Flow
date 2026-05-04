@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Bell, Moon, Sun } from "lucide-react";
+import { Bell, LogOut, Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -39,11 +39,11 @@ function Navbar({ user }) {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="glass-panel relative flex flex-col gap-4 rounded-3xl p-5 md:flex-row md:items-center md:justify-between"
+      className="glass-panel relative flex flex-col gap-4 overflow-visible rounded-3xl p-5 md:flex-row md:items-center md:justify-between"
     >
       <div>
-        <p className="text-sm text-slate-500">Signed in as</p>
-        <h2 className="text-xl font-semibold">{user?.email}</h2>
+        <p className="text-sm font-medium text-slate-500">Signed in as</p>
+        <h2 className="mt-1 text-xl font-semibold text-slate-900">{user?.email}</h2>
       </div>
       <div className="flex items-center gap-3">
         <motion.button
@@ -51,7 +51,7 @@ function Navbar({ user }) {
           whileHover={{ rotate: 10, scale: 1.06 }}
           whileTap={{ scale: 0.96 }}
           transition={{ type: "spring", stiffness: 280, damping: 20 }}
-          className="rounded-full bg-white/80 p-2 text-slate-700"
+          className="rounded-2xl border border-slate-200 bg-white/85 p-2.5 text-slate-700 shadow-sm"
           aria-label="Toggle theme"
         >
           {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
@@ -60,7 +60,7 @@ function Navbar({ user }) {
           animate={{ rotate: [0, 12, -10, 8, 0] }}
           transition={{ duration: 0.8, repeat: Infinity, repeatDelay: 7 }}
           onClick={() => setPanelOpen((value) => !value)}
-          className="relative rounded-full bg-white/80 p-2 text-slate-700"
+          className="relative rounded-2xl border border-slate-200 bg-white/85 p-2.5 text-slate-700 shadow-sm"
           aria-label="Open notifications"
         >
           <Bell size={18} />
@@ -70,10 +70,11 @@ function Navbar({ user }) {
             </span>
           )}
         </motion.button>
-        <span className="rounded-full bg-teal-50 px-3 py-2 text-xs font-semibold tracking-[0.2em] text-teal-700">
+        <span className="rounded-2xl border border-teal-100 bg-teal-50 px-3 py-2 text-xs font-semibold tracking-[0.18em] text-teal-700">
           {roleLabel}
         </span>
         <Button variant="secondary" onClick={handleLogout}>
+          <LogOut size={16} />
           Logout
         </Button>
       </div>

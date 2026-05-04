@@ -199,12 +199,26 @@ function Checkout() {
     if (!paymentPayload) return;
 
     if (paymentPayload.razorpayOrder?.mock) {
-      setStatusMessage("Razorpay is not configured correctly. Please contact admin.");
+      const mockPaymentId = `mock_payment_${Date.now()}`;
+      const verifyResult = await dispatch(
+        verifyPayment({
+          paymentId: paymentPayload.payment._id,
+          razorpayOrderId: paymentPayload.razorpayOrder.id,
+          razorpayPaymentId: mockPaymentId,
+          razorpaySignature: "mock_signature",
+        })
+      );
+
+      if (!verifyResult.error) {
+        setStatusMessage("Demo payment captured. Configure Razorpay keys to use the live checkout.");
+      }
       return;
     }
 
-    if (!import.meta.env.VITE_RAZORPAY_KEY) {
-      setStatusMessage("Razorpay key is missing in the client configuration.");
+    const razorpayKey = paymentPayload.razorpayKeyId || import.meta.env.VITE_RAZORPAY_KEY;
+
+    if (!razorpayKey) {
+      setStatusMessage("Razorpay key is missing in the payment configuration.");
       return;
     }
 
@@ -216,7 +230,7 @@ function Checkout() {
     }
 
     const options = {
-      key: import.meta.env.VITE_RAZORPAY_KEY,
+      key: razorpayKey,
       amount: paymentPayload.razorpayOrder.amount,
       currency: paymentPayload.razorpayOrder.currency,
       name: "OmniStock-Flow",

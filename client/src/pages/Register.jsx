@@ -14,6 +14,8 @@ const roles = [
   { value: "ADMIN", label: "Admin" },
 ];
 
+const storeDetailRoles = ["STORE_MANAGER", "CUSTOMER", "STORE_OWNER"];
+
 function Register() {
   const [form, setForm] = useState({
     name: "",
@@ -27,6 +29,7 @@ function Register() {
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
+  const shouldShowStoreDetails = storeDetailRoles.includes(form.role);
 
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -44,7 +47,7 @@ function Register() {
         password: form.password,
         role: form.role,
         phone: form.phone,
-        storeName: form.storeName,
+        storeName: shouldShowStoreDetails ? form.storeName : "",
       });
       toast.success("OTP sent to your email");
       navigate("/verify-otp", {
@@ -74,7 +77,14 @@ function Register() {
             <select
               className="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 text-sm outline-none transition focus:border-teal-600"
               value={form.role}
-              onChange={(event) => setForm({ ...form, role: event.target.value })}
+              onChange={(event) => {
+                const role = event.target.value;
+                setForm({
+                  ...form,
+                  role,
+                  storeName: storeDetailRoles.includes(role) ? form.storeName : "",
+                });
+              }}
             >
               {roles.map((role) => (
                 <option key={role.value} value={role.value}>
@@ -99,13 +109,15 @@ function Register() {
             minLength={8}
             required
           />
-          <div className="md:col-span-2">
-            <Input
-              label="Store name optional"
-              value={form.storeName}
-              onChange={(event) => setForm({ ...form, storeName: event.target.value })}
-            />
-          </div>
+          {shouldShowStoreDetails && (
+            <div className="md:col-span-2">
+              <Input
+                label="Store name optional"
+                value={form.storeName}
+                onChange={(event) => setForm({ ...form, storeName: event.target.value })}
+              />
+            </div>
+          )}
           <div className="md:col-span-2">
             <Button className="flex w-full items-center justify-center gap-2" disabled={loading}>
               <UserPlus size={18} />

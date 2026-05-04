@@ -12,6 +12,8 @@ function ManageUsers() {
   const { items } = useSelector((state) => state.users);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
+  const [formError, setFormError] = useState("");
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     dispatch(fetchUsers());
@@ -20,16 +22,25 @@ function ManageUsers() {
   const reload = () => dispatch(fetchUsers());
 
   const submitHandler = async (payload) => {
-    if (editingUser) {
-      const updatePayload = { ...payload };
-      if (!updatePayload.password) delete updatePayload.password;
-      await userService.update(editingUser._id, updatePayload);
-    } else {
-      await userService.create(payload);
+    setFormError("");
+    setSaving(true);
+
+    try {
+      if (editingUser) {
+        const updatePayload = { ...payload };
+        if (!updatePayload.password) delete updatePayload.password;
+        await userService.update(editingUser._id, updatePayload);
+      } else {
+        await userService.create(payload);
+      }
+      setModalOpen(false);
+      setEditingUser(null);
+      reload();
+    } catch (error) {
+      setFormError(error.message || "Unable to save user");
+    } finally {
+      setSaving(false);
     }
-    setModalOpen(false);
-    setEditingUser(null);
-    reload();
   };
 
   const deleteHandler = async (id) => {
@@ -48,6 +59,7 @@ function ManageUsers() {
         <Button
           onClick={() => {
             setEditingUser(null);
+            setFormError("");
             setModalOpen(true);
           }}
         >
@@ -70,6 +82,7 @@ function ManageUsers() {
                   variant="secondary"
                   onClick={() => {
                     setEditingUser(row);
+                    setFormError("");
                     setModalOpen(true);
                   }}
                 >
@@ -89,9 +102,12 @@ function ManageUsers() {
         onClose={() => {
           setModalOpen(false);
           setEditingUser(null);
+          setFormError("");
         }}
         onSubmit={submitHandler}
         initialValues={editingUser}
+        error={formError}
+        saving={saving}
       />
     </div>
   );

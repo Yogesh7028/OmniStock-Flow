@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import storeService from "../../services/storeService";
+import userService from "../../services/userService";
 import SectionHeader from "../../components/common/SectionHeader";
 import Table from "../../components/common/Table";
 import Button from "../../components/common/Button";
@@ -7,14 +8,22 @@ import StoreFormModal from "./StoreFormModal";
 
 function ManageStores() {
   const [items, setItems] = useState([]);
+  const [storeOwners, setStoreOwners] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingStore, setEditingStore] = useState(null);
 
   const loadStores = () =>
     storeService.getAll().then((response) => setItems(response.data.data));
 
+  const loadStoreOwners = () =>
+    userService.getAll().then((response) => {
+      const owners = response.data.data.filter((user) => user.role === "STORE_MANAGER");
+      setStoreOwners(owners);
+    });
+
   useEffect(() => {
     loadStores();
+    loadStoreOwners();
   }, []);
 
   const submitHandler = async (payload) => {
@@ -39,7 +48,7 @@ function ManageStores() {
         <SectionHeader
           eyebrow="Admin"
           title="Stores"
-          description="Review store network coverage and assigned managers."
+          description="Review store network coverage and assigned owners."
         />
         <Button
           onClick={() => {
@@ -55,7 +64,7 @@ function ManageStores() {
           { key: "name", label: "Store" },
           { key: "code", label: "Code" },
           { key: "location", label: "Location" },
-          { key: "manager", label: "Manager", render: (row) => row.manager?.name || "-" },
+          { key: "manager", label: "Store Owner", render: (row) => row.manager?.name || row.manager?.email || "-" },
           {
             key: "actions",
             label: "Actions",
@@ -87,6 +96,7 @@ function ManageStores() {
         }}
         onSubmit={submitHandler}
         initialValues={editingStore}
+        storeOwners={storeOwners}
       />
     </div>
   );

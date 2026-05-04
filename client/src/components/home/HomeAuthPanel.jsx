@@ -14,6 +14,8 @@ const roles = [
   { value: "ADMIN", label: "Admin" },
 ];
 
+const storeDetailRoles = ["STORE_MANAGER", "CUSTOMER", "STORE_OWNER"];
+
 const initialLoginForm = { email: "", password: "" };
 
 const initialRegisterForm = {
@@ -36,6 +38,7 @@ function HomeAuthPanel({ mode, onModeChange, onClose }) {
 
   const isSignup = mode === "signup";
   const isForgot = mode === "forgot";
+  const shouldShowStoreDetails = storeDetailRoles.includes(registerForm.role);
 
   const submitLogin = async (event) => {
     event.preventDefault();
@@ -68,7 +71,7 @@ function HomeAuthPanel({ mode, onModeChange, onClose }) {
         password: registerForm.password,
         role: registerForm.role,
         phone: registerForm.phone,
-        storeName: registerForm.storeName,
+        storeName: shouldShowStoreDetails ? registerForm.storeName : "",
       });
       toast.success("OTP sent to your email");
       navigate("/verify-otp", {
@@ -204,7 +207,14 @@ function HomeAuthPanel({ mode, onModeChange, onClose }) {
                     <select
                       className="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 text-sm outline-none transition focus:border-teal-600"
                       value={registerForm.role}
-                      onChange={(event) => setRegisterForm({ ...registerForm, role: event.target.value })}
+                      onChange={(event) => {
+                        const role = event.target.value;
+                        setRegisterForm({
+                          ...registerForm,
+                          role,
+                          storeName: storeDetailRoles.includes(role) ? registerForm.storeName : "",
+                        });
+                      }}
                     >
                       {roles.map((role) => (
                         <option key={role.value} value={role.value}>
@@ -215,9 +225,11 @@ function HomeAuthPanel({ mode, onModeChange, onClose }) {
                   </label>
                   <Input label="Password" type="password" value={registerForm.password} onChange={(event) => setRegisterForm({ ...registerForm, password: event.target.value })} minLength={8} required />
                   <Input label="Confirm password" type="password" value={registerForm.confirmPassword} onChange={(event) => setRegisterForm({ ...registerForm, confirmPassword: event.target.value })} minLength={8} required />
-                  <div className="md:col-span-2">
-                    <Input label="Store name optional" value={registerForm.storeName} onChange={(event) => setRegisterForm({ ...registerForm, storeName: event.target.value })} />
-                  </div>
+                  {shouldShowStoreDetails && (
+                    <div className="md:col-span-2">
+                      <Input label="Store name optional" value={registerForm.storeName} onChange={(event) => setRegisterForm({ ...registerForm, storeName: event.target.value })} />
+                    </div>
+                  )}
                   <div className="md:col-span-2">
                     <Button className="flex w-full items-center justify-center gap-2" disabled={loading}>
                       <UserPlus size={18} />

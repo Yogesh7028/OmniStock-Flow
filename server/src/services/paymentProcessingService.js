@@ -40,7 +40,25 @@ const getOrCreatePaymentOrder = async ({ order, userId }) => {
   }
 
   if (!hasRealRazorpayKeys()) {
-    throw new Error("Razorpay keys are not configured on the server");
+    const mockOrderId = `mock_order_${order._id}_${Date.now()}`;
+    const payment = await Payment.create({
+      order: order._id,
+      user: userId,
+      amount: order.totalAmount,
+      razorpayOrderId: mockOrderId,
+      status: "created",
+    });
+
+    return {
+      razorpayOrder: {
+        id: mockOrderId,
+        amount: Math.round(order.totalAmount * 100),
+        currency: "INR",
+        mock: true,
+      },
+      payment,
+      reused: false,
+    };
   }
 
   const razorpayOrder = await razorpay.orders.create({
@@ -69,6 +87,10 @@ const getOrCreatePaymentOrder = async ({ order, userId }) => {
 };
 
 const verifyRazorpaySignature = ({ razorpayOrderId, razorpayPaymentId, razorpaySignature }) => {
+  if (!hasRealRazorpayKeys() && isMockOrderId(razorpayOrderId)) {
+    return String(razorpayPaymentId || "").startsWith("mock_payment_");
+  }
+
   const hasRealSecret =
     process.env.RAZORPAY_KEY_SECRET &&
     String(process.env.RAZORPAY_KEY_SECRET).trim() &&
@@ -129,4 +151,5 @@ module.exports = {
   getOrCreatePaymentOrder,
   verifyRazorpaySignature,
   capturePaymentAndGenerateInvoice,
+  hasRealRazorpayKeys,
 };

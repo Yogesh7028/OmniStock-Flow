@@ -12,7 +12,7 @@ const initialState = {
   isVerified: true,
 };
 
-function UserFormModal({ open, onClose, onSubmit, initialValues }) {
+function UserFormModal({ open, onClose, onSubmit, initialValues, error = "", saving = false }) {
   const [form, setForm] = useState(initialState);
 
   useEffect(() => {
@@ -66,9 +66,16 @@ function UserFormModal({ open, onClose, onSubmit, initialValues }) {
           />
           Verified account
         </label>
+        {error && (
+          <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+            {error}
+          </div>
+        )}
         <div className="flex gap-3">
-          <Button type="submit">{initialValues ? "Save changes" : "Create user"}</Button>
-          <Button type="button" variant="secondary" onClick={onClose}>
+          <Button type="submit" disabled={saving}>
+            {saving ? "Saving..." : initialValues ? "Save changes" : "Create user"}
+          </Button>
+          <Button type="button" variant="secondary" onClick={onClose} disabled={saving}>
             Cancel
           </Button>
         </div>

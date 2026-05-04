@@ -66,11 +66,16 @@ const getSettingsDocument = async ({ scope, user }) => {
 
 const getAllowedSections = (role) => roleSections[role] || roleSections.SUPPLIER;
 
+const toPlainSection = (sectionValue) => {
+  if (!sectionValue) return {};
+  return sectionValue.toObject ? sectionValue.toObject() : sectionValue;
+};
+
 const pickSections = ({ userSettings, globalSettings, role }) => {
   const allowed = getAllowedSections(role);
   return allowed.reduce((payload, section) => {
     const source = adminOnlySections.includes(section) ? globalSettings : userSettings;
-    payload[section] = source[section] || {};
+    payload[section] = toPlainSection(source[section]);
     return payload;
   }, {});
 };
@@ -126,13 +131,14 @@ const updateSettingsSection = asyncHandler(async (req, res) => {
     user: scope === "USER" ? req.user._id : null,
   });
 
-  settings[section] = {
-    ...(settings[section]?.toObject ? settings[section].toObject() : settings[section] || {}),
+  settings.set(section, {
+    ...toPlainSection(settings[section]),
     ...sanitizeSectionPayload(section, req.body),
-  };
+  });
+  settings.markModified(section);
   await settings.save();
 
-  successResponse(res, "Settings saved", { section, settings: settings[section] });
+  successResponse(res, "Settings saved", { section, settings: toPlainSection(settings[section]) });
 });
 
 const updateAccountSettings = asyncHandler(async (req, res) => {
@@ -160,13 +166,17 @@ const updateAccountSettings = asyncHandler(async (req, res) => {
 
   const settings = await getSettingsDocument({ scope: "USER", user: req.user._id });
   if (otpEnabled !== undefined) {
-    settings.account.otpEnabled = Boolean(otpEnabled);
+    settings.set("account", {
+      ...toPlainSection(settings.account),
+      otpEnabled: Boolean(otpEnabled),
+    });
+    settings.markModified("account");
     await settings.save();
   }
 
   successResponse(res, "Account settings saved", {
     user: sanitizeUser(user),
-    settings: settings.account,
+    settings: toPlainSection(settings.account),
   });
 });
 
