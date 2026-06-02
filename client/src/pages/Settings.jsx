@@ -359,24 +359,6 @@ function Settings() {
         <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.24em] text-amber-200">Settings</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">Control center</h2>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
-              Tune account preferences, permissions, security, payments, and operational defaults from one focused workspace.
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            <div className="rounded-2xl border border-white/10 bg-white/10 p-3">
-              <p className="text-2xl font-semibold">{visibleSections.length}</p>
-              <p className="text-xs text-slate-300">Sections</p>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-white/10 p-3">
-              <p className="text-2xl font-semibold">{user?.role ? "On" : "--"}</p>
-              <p className="text-xs text-slate-300">Role access</p>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-white/10 p-3">
-              <p className="text-2xl font-semibold">{saving ? "Saving" : "Ready"}</p>
-              <p className="text-xs text-slate-300">Status</p>
-            </div>
           </div>
         </div>
       </motion.div>

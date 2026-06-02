@@ -105,9 +105,7 @@ function BrowseProducts() {
   return (
     <PageWrapper className="space-y-6">
       <SectionHeader
-        eyebrow="Store"
-        title="Browse products"
-        description="Search products, compare stock, and build your purchase cart."
+        title="Browse Products"
       />
 
       <div className="glass-panel grid gap-3 rounded-3xl p-4 md:grid-cols-6">

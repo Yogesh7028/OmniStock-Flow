@@ -13,9 +13,7 @@ function DeliveryHistory() {
 
   return (
     <EntityTablePage
-      eyebrow="Supplier"
       title="Delivery history"
-      description="Delivered and shipped order history for supplier fulfillment."
       columns={[
         { key: "_id", label: "Order ID" },
         { key: "status", label: "Status" },

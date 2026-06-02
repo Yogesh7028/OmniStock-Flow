@@ -171,15 +171,10 @@ function AdminDashboard() {
         <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-teal-400 via-amber-300 to-cyan-400" />
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-amber-200">Admin</p>
-            <h2 className="mt-2 text-3xl font-semibold text-white">Admin Dashboard</h2>
+            <h2 className="mt-2 text-3xl font-semibold text-white">Dashboard</h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
-              Cards, charts, and operational tables for users, inventory, orders, payments, and revenue.
+          
             </p>
-          </div>
-          <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-slate-200">
-            <Boxes size={18} />
-            Live report
           </div>
         </div>
       </div>
@@ -245,53 +240,6 @@ function AdminDashboard() {
             </BarChart>
           </ResponsiveContainer>
         </ChartPanel>
-      </div>
-
-      <div className="grid gap-6 xl:grid-cols-2">
-        <TablePanel
-          title="Recent Orders"
-          subtitle="Latest order activity across stores"
-          data={safeArray(report?.recentOrders)}
-          columns={[
-            { key: "_id", label: "Order", render: (row) => String(row._id).slice(-6).toUpperCase() },
-            { key: "storeManager", label: "Customer", render: (row) => row.storeManager?.name || row.storeManager?.email || "-" },
-            { key: "status", label: "Status" },
-            { key: "totalAmount", label: "Total", render: (row) => formatCurrency(row.totalAmount) },
-          ]}
-        />
-        <TablePanel
-          title="Recent Payments"
-          subtitle="Newest payment attempts and captures"
-          data={safeArray(report?.recentPayments)}
-          columns={[
-            { key: "_id", label: "Payment", render: (row) => String(row._id).slice(-6).toUpperCase() },
-            { key: "user", label: "User", render: (row) => row.user?.name || row.user?.email || "-" },
-            { key: "status", label: "Status" },
-            { key: "amount", label: "Amount", render: (row) => formatCurrency(row.amount) },
-          ]}
-        />
-        <TablePanel
-          title="Low Stock Products"
-          subtitle="Items needing replenishment attention"
-          data={lowStockProducts}
-          columns={[
-            { key: "name", label: "Product" },
-            { key: "sku", label: "SKU" },
-            { key: "stock", label: "Stock", render: (row) => Number(row.warehouseStock || 0) + Number(row.storeStock || 0) },
-            { key: "lowStockThreshold", label: "Limit" },
-          ]}
-        />
-        <TablePanel
-          title="Recent Users"
-          subtitle="Newest registered users and roles"
-          data={safeArray(report?.recentUsers)}
-          columns={[
-            { key: "name", label: "Name" },
-            { key: "email", label: "Email" },
-            { key: "role", label: "Role" },
-            { key: "createdAt", label: "Joined", render: (row) => formatDate(row.createdAt) },
-          ]}
-        />
       </div>
     </PageWrapper>
   );

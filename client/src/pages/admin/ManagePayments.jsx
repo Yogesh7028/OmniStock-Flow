@@ -13,9 +13,7 @@ function ManagePayments() {
 
   return (
     <EntityTablePage
-      eyebrow="Admin"
       title="Payments"
-      description="Review captured transactions, provider references, and linked orders."
       columns={[
         { key: "provider", label: "Provider" },
         { key: "status", label: "Status" },

@@ -87,7 +87,7 @@ function TransferStock() {
   return (
     <div className="grid gap-6 xl:grid-cols-3">
       <div className="space-y-6">
-        <SectionHeader eyebrow="Warehouse" title="General to warehouse" description="Move newly created general stock into a warehouse." />
+        <SectionHeader title="General to warehouse" />
         <form
           className="glass-panel space-y-4 rounded-3xl p-6"
           onSubmit={async (e) => {
@@ -108,7 +108,7 @@ function TransferStock() {
         </form>
       </div>
       <div className="space-y-6">
-        <SectionHeader eyebrow="Warehouse" title="Transfer to store" description="Move inventory from a warehouse to a store location." />
+        <SectionHeader title="Transfer to store" />
         <form
           className="glass-panel space-y-4 rounded-3xl p-6"
           onSubmit={async (e) => {
@@ -130,7 +130,7 @@ function TransferStock() {
         </form>
       </div>
       <div className="space-y-6">
-        <SectionHeader eyebrow="Warehouse" title="Transfer to warehouse" description="Rebalance inventory between warehouses." />
+        <SectionHeader title="Transfer to warehouse" />
         <form
           className="glass-panel space-y-4 rounded-3xl p-6"
           onSubmit={async (e) => {

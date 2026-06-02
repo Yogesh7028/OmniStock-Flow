@@ -13,9 +13,7 @@ function ManageOrders() {
 
   return (
     <EntityTablePage
-      eyebrow="Admin"
       title="All orders"
-      description="Inspect order status, payment progress, and fulfillment details."
       columns={[
         { key: "_id", label: "Order ID" },
         { key: "status", label: "Status" },

@@ -39,9 +39,7 @@ function Cart() {
   return (
     <div className="space-y-6">
       <SectionHeader
-        eyebrow="Store"
         title="Cart"
-        description="Review selected products and quantities before checkout."
       />
       <div className="glass-panel overflow-hidden rounded-3xl">
         {loading && <p className="p-6 text-sm text-slate-500">Loading cart...</p>}

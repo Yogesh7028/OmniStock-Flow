@@ -18,20 +18,18 @@ function WarehouseReports() {
 
   return (
     <PageWrapper className="space-y-6">
-      <SectionHeader eyebrow="Warehouse" title="Warehouse reports" description="Stock, transfer, and low-stock reporting for warehouse operations." />
+      <SectionHeader title="Warehouse reports" />
       <DashboardWidgets
         stats={[
-          { title: "Transfers", value: totals.transfers || 0, subtitle: "Movement records" },
-          { title: "Low stock", value: report?.lowStockProducts?.length || 0, subtitle: "Needs response" },
-          { title: "Warehouse stock", value: totals.warehouseStock || 0, subtitle: "Units left" },
-          { title: "Pending", value: report?.pendingDeliveries || 0, subtitle: "Open deliveries" },
+          { title: "Transfers", value: totals.transfers || 0 },
+          { title: "Low stock", value: report?.lowStockProducts?.length || 0 },
+          { title: "Warehouse stock", value: totals.warehouseStock || 0 },
+          { title: "Pending", value: report?.pendingDeliveries || 0 },
         ]}
       />
       <section className="space-y-4">
         <SectionHeader
-          eyebrow="Stock left"
-          title="Stock by warehouse"
-          description="Check remaining product quantities across every warehouse."
+          title="STOCK LEFT"
         />
         <Table
           columns={[

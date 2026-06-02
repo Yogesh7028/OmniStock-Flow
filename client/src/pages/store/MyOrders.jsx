@@ -13,9 +13,7 @@ function MyOrders() {
 
   return (
     <EntityTablePage
-      eyebrow="Store"
       title="My orders"
-      description="View purchase history and current payment state."
       columns={[
         { key: "_id", label: "Order ID" },
         { key: "status", label: "Status" },

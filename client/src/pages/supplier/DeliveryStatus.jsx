@@ -17,7 +17,7 @@ function DeliveryStatus() {
 
   return (
     <div className="space-y-6">
-      <SectionHeader eyebrow="Supplier" title="Update delivery status" description="Move order state forward and notify store owners of delivery progress." />
+      <SectionHeader  title="Update delivery status" />
       <div className="space-y-4">
         {items.map((order) => (
           <div key={order._id} className="glass-panel rounded-3xl p-5">

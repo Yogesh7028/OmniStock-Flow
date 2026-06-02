@@ -13,9 +13,7 @@ function SupplierOrders() {
 
   return (
     <EntityTablePage
-      eyebrow="Supplier"
       title="Assigned orders"
-      description="Review every assigned order and its current status."
       columns={[
         { key: "_id", label: "Order ID" },
         { key: "status", label: "Status" },

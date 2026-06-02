@@ -15,9 +15,7 @@ function ManageInvoices() {
 
   return (
     <EntityTablePage
-      eyebrow="Admin"
       title="Invoices"
-      description="Payment-backed invoices are generated automatically after order capture."
       columns={[
         { key: "invoiceNumber", label: "Invoice" },
         { key: "customerName", label: "Customer" },

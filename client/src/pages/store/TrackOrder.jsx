@@ -64,7 +64,7 @@ function TrackOrder() {
 
   return (
     <PageWrapper className="space-y-6">
-      <SectionHeader eyebrow="Store" title="Order tracking" description="Monitor supplier progress, payments, shipment status, and delivery readiness in one place." />
+      <SectionHeader title="Order tracking" />
 
       <div className="grid gap-4 md:grid-cols-4">
         {metrics.map((metric, index) => {

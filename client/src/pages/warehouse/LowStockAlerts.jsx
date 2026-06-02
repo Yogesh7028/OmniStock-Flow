@@ -17,9 +17,7 @@ function LowStockAlerts() {
 
   return (
     <EntityTablePage
-      eyebrow="Warehouse"
-      title="Low stock alerts"
-      description="Products that have reached or fallen below their configured threshold."
+      title="Low Stock Alerts"
       columns={[
         { key: "name", label: "Product" },
         { key: "sku", label: "SKU" },

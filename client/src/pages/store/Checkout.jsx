@@ -298,7 +298,7 @@ function Checkout() {
 
   return (
     <PageWrapper className="space-y-6">
-      <SectionHeader eyebrow="Store" title="Checkout flow" description="Choose a warehouse, create an order, initiate Razorpay, and trigger invoice generation after payment capture." />
+      <SectionHeader title="Checkout" />
       <form onSubmit={createOrderHandler} className="glass-panel grid gap-4 rounded-3xl p-6 md:grid-cols-2">
         {hasCartItems && (
           <div className="rounded-2xl bg-teal-50 p-4 text-sm font-semibold text-teal-700 md:col-span-2">
@@ -390,7 +390,7 @@ function Checkout() {
             Create Order
           </Button>
           <Button type="button" variant="warning" onClick={payNowHandler} disabled={loading}>
-            {loading ? "Processing..." : "Pay and Generate Invoice"}
+            {loading ? "Processing..." : "Pay"}
           </Button>
         </div>
       </form>

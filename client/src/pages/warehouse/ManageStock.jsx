@@ -99,9 +99,7 @@ function ManageStock() {
   return (
     <PageWrapper className="space-y-6">
       <SectionHeader
-        eyebrow={user?.role === "ADMIN" ? "Admin" : "Warehouse"}
-        title="Manage products"
-        description="Add, edit, and delete catalog products. New quantity starts in general stock."
+        title="Manage Products"
       />
       <form onSubmit={submitCreate} className="glass-panel grid gap-4 rounded-3xl p-6 md:grid-cols-2">
         <div className="md:col-span-2">

@@ -16,7 +16,7 @@ function Notifications() {
 
   return (
     <PageWrapper className="space-y-6">
-      <SectionHeader eyebrow="Alerts" title="Notifications" description="Database-backed alerts for orders, payments, invoices, and delivery status." />
+      <SectionHeader title="Notifications" />
       <div className="space-y-4">
         {items.map((notification) => (
           <motion.div

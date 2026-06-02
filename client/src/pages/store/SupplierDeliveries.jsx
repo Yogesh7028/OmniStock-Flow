@@ -17,9 +17,7 @@ function SupplierDeliveries() {
 
   return (
     <EntityTablePage
-      eyebrow="Store"
       title="Supplier deliveries"
-      description="Track supplier movement for your store orders."
       columns={[
         { key: "_id", label: "Order", render: (order) => `#${order._id.slice(-8).toUpperCase()}` },
         { key: "supplier", label: "Supplier", render: (order) => order.supplier?.name || "Unassigned" },

@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { smoothSidebar } from "../animations/motionPresets";
+import omniStockLogo from "../../assets/images/OmniStockFlow-logo.png";
 
 const iconMap = {
   Dashboard: Home,
@@ -123,16 +124,19 @@ function Sidebar({ role }) {
       transition={smoothSidebar.transition}
       className="glass-panel sticky top-6 w-full overflow-hidden rounded-3xl p-4 lg:w-72"
     >
-      <div className="mb-6 rounded-2xl border border-white/70 bg-white/60 p-4">
+      <div className="mb-6 rounded-2xl border border-white/70 bg-white/60 p-3">
         <motion.div
-          initial={{ scale: 0.92, rotate: -6 }}
-          animate={{ scale: 1, rotate: 0 }}
+          initial={{ scale: 0.94, y: -4 }}
+          animate={{ scale: 1, y: 0 }}
           transition={{ type: "spring", stiffness: 220, damping: 18 }}
-          className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-700 to-amber-400 text-white shadow-soft"
+          className="mb-3 flex h-36 items-center justify-center overflow-hidden rounded-2xl bg-white/80 shadow-soft"
         >
-          <Boxes size={22} />
+          <img
+            src={omniStockLogo}
+            alt="OmniStock Flow"
+            className="h-56 max-w-none scale-125 object-contain"
+          />
         </motion.div>
-        <h1 className="text-2xl font-semibold text-slate-900">OmniStock Flow</h1>
         <p className="mt-1 text-xs font-medium text-slate-500">{roleName}</p>
       </div>
       <nav className="max-h-[calc(100vh-13rem)] space-y-1 overflow-y-auto pr-1">

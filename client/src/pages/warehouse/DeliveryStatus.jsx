@@ -22,7 +22,7 @@ function DeliveryStatus() {
 
   return (
     <PageWrapper className="space-y-6">
-      <SectionHeader eyebrow="Warehouse" title="Delivery status" description="Prepare dispatches and update warehouse delivery movement." />
+      <SectionHeader title="Delivery Status" />
       <div className="space-y-4">
         {items.map((order) => (
           <div key={order._id} className="glass-panel rounded-3xl p-5">

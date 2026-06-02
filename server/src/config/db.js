@@ -65,6 +65,15 @@ const connectDB = async () => {
       );
     }
 
+    if (
+      mongoUri.startsWith("mongodb+srv://") &&
+      (error.name === "MongooseServerSelectionError" || error.reason?.type === "ReplicaSetNoPrimary")
+    ) {
+      throw new Error(
+        "MongoDB Atlas connection failed after DNS resolution. Add your current public IP to Atlas Network Access, and make sure your network/firewall allows outbound TCP traffic on port 27017."
+      );
+    }
+
     throw error;
   }
 };

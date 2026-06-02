@@ -15,9 +15,7 @@ function MyInvoices() {
 
   return (
     <EntityTablePage
-      eyebrow="Store"
       title="My invoices"
-      description="Download payment-backed invoices generated after checkout."
       columns={[
         { key: "invoiceNumber", label: "Invoice" },
         { key: "customerName", label: "Customer" },

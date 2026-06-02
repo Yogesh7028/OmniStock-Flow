@@ -123,9 +123,7 @@ function ManageWarehouses() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <SectionHeader
-          eyebrow={isAdmin ? "Admin" : "Warehouse"}
           title="Warehouses"
-          description="View each warehouse location, manager assignment, and remaining product stock."
         />
         {isAdmin && (
           <Button

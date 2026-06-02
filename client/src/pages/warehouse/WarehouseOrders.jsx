@@ -14,9 +14,7 @@ function WarehouseOrders() {
 
   return (
     <EntityTablePage
-      eyebrow="Warehouse"
       title="Assigned orders"
-      description="Review store orders that need warehouse visibility, preparation, dispatch, or receipt."
       columns={[
         { key: "_id", label: "Order ID", render: (order) => `#${order._id.slice(-8).toUpperCase()}` },
         { key: "store", label: "Store", render: (order) => order.store?.name || "Unassigned" },

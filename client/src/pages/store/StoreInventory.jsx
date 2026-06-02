@@ -14,9 +14,7 @@ function StoreInventory() {
 
   return (
     <EntityTablePage
-      eyebrow="Store"
       title="Store inventory"
-      description="View available inventory and reorder candidates."
       loading={loading}
       data={items}
       columns={[

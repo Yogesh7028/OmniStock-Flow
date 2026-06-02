@@ -39,7 +39,7 @@ function Profile() {
 
   return (
     <PageWrapper className="space-y-6">
-      <SectionHeader eyebrow="Warehouse" title="Profile" description="View your warehouse manager identity and role permissions." />
+      <SectionHeader title="Profile" />
       <form onSubmit={submitHandler} className="glass-panel grid gap-4 rounded-3xl p-6 md:grid-cols-2">
         <Input label="Name" value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} />
         <Input label="Email" value={form.email} disabled />

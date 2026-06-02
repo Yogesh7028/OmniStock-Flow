@@ -25,13 +25,13 @@ function PurchaseAnalytics() {
 
   return (
     <PageWrapper className="space-y-6">
-      <SectionHeader eyebrow="Store" title="Purchase analytics" description="Track order volume, spend, and product demand." />
+      <SectionHeader title="Purchase Analytics" />
       <DashboardWidgets
         stats={[
-          { title: "Orders", value: items.length, subtitle: "Purchase history" },
-          { title: "Spend", value: Math.round(spend), subtitle: "Total value" },
-          { title: "Paid", value: items.filter((order) => order.paymentStatus === "Paid").length, subtitle: "Confirmed" },
-          { title: "Delivered", value: items.filter((order) => order.status === "Delivered").length, subtitle: "Completed" },
+          { title: "Orders", value: items.length,  },
+          { title: "Spend", value: Math.round(spend),},
+          { title: "Paid", value: items.filter((order) => order.paymentStatus === "Paid").length, },
+          { title: "Delivered", value: items.filter((order) => order.status === "Delivered").length, },
         ]}
       />
       <InventoryChart data={productRows} />

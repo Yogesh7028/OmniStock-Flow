@@ -15,7 +15,7 @@ function Reports() {
 
   return (
     <div className="space-y-6">
-      <SectionHeader eyebrow="Analytics" title="Admin reports" description="Revenue, utilization, and low-stock risk in a single reporting surface." />
+      <SectionHeader  title=" Reports" />
       <DashboardWidgets
         stats={[
           { title: "Revenue", value: totals.revenue || 0, subtitle: "Captured payments" },

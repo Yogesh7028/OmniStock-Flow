@@ -15,9 +15,7 @@ function WarehouseInvoices() {
 
   return (
     <EntityTablePage
-      eyebrow="Warehouse"
-      title="Store purchase invoices"
-      description="Access invoices generated from store owner purchases after payment success."
+      title="Invoices"
       columns={[
         { key: "invoiceNumber", label: "Invoice" },
         { key: "customerName", label: "Customer" },

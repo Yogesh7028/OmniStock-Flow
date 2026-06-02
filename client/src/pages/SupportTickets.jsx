@@ -71,13 +71,7 @@ function SupportTickets() {
   return (
     <PageWrapper className="space-y-6">
       <SectionHeader
-        eyebrow="Support"
-        title={isAdmin ? "Resolve support tickets" : "Support tickets"}
-        description={
-          isAdmin
-            ? "Review user tickets, respond to queries, and move issues toward resolution."
-            : "Raise operational issues and track resolution status."
-        }
+        title={isAdmin ? "Resolve support tickets" : "Support Tickets"}
       />
 
       {!isAdmin && (

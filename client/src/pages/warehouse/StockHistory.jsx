@@ -13,9 +13,7 @@ function StockHistory() {
 
   return (
     <EntityTablePage
-      eyebrow="Warehouse"
-      title="Stock transfer history"
-      description="Track general-to-warehouse, warehouse-to-store, and warehouse-to-warehouse movement."
+      title="Stock Transfer History"
       columns={[
         { key: "type", label: "Type" },
         { key: "quantity", label: "Quantity" },
